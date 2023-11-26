@@ -18,17 +18,16 @@
  */
 package com.iohao.game.external.client.join;
 
-import com.iohao.game.action.skeleton.core.BarSkeleton;
 import com.iohao.game.action.skeleton.core.DataCodecKit;
-import com.iohao.game.common.kit.log.IoGameLoggerFactory;
+import com.iohao.game.common.consts.IoGameLogName;
 import com.iohao.game.external.client.ClientConnectOption;
 import com.iohao.game.external.client.user.ClientUser;
 import com.iohao.game.external.client.user.ClientUserChannel;
 import com.iohao.game.external.core.message.ExternalMessage;
+import lombok.extern.slf4j.Slf4j;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.drafts.Draft_6455;
 import org.java_websocket.handshake.ServerHandshake;
-import org.slf4j.Logger;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -39,16 +38,14 @@ import java.util.Objects;
  * @author 渔民小镇
  * @date 2023-07-04
  */
+@Slf4j(topic = IoGameLogName.CommonStdout)
 class WebSocketClientStartup implements ClientConnect {
-    static final Logger log = IoGameLoggerFactory.getLoggerCommonStdout();
-
     @Override
     public void connect(ClientConnectOption option) {
         ClientUser clientUser = option.getClientUser();
         ClientUserChannel clientUserChannel = clientUser.getClientUserChannel();
 
         String wsUrl = option.getWsUrl();
-        BarSkeleton barSkeleton = option.getBarSkeleton();
 
         URI uri = null;
         try {
@@ -65,14 +62,17 @@ class WebSocketClientStartup implements ClientConnect {
 
             @Override
             public void onMessage(String s) {
+                log.info("onMessage : {}", s);
             }
 
             @Override
             public void onClose(int i, String s, boolean b) {
+                log.info("onClose : {}", s);
             }
 
             @Override
             public void onError(Exception e) {
+                log.error(e.getMessage(), e);
             }
 
             @Override
@@ -81,7 +81,7 @@ class WebSocketClientStartup implements ClientConnect {
                 byte[] dataContent = byteBuffer.array();
                 ExternalMessage externalMessage = DataCodecKit.decode(dataContent, ExternalMessage.class);
 
-                clientUserChannel.read(externalMessage, barSkeleton);
+                clientUserChannel.readMessage(externalMessage);
             }
         };
 

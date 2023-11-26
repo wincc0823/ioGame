@@ -22,12 +22,13 @@ import com.iohao.game.action.skeleton.core.CmdInfo;
 import com.iohao.game.action.skeleton.protocol.wrapper.IntValue;
 import com.iohao.game.action.skeleton.protocol.wrapper.LongValue;
 import com.iohao.game.action.skeleton.protocol.wrapper.StringValue;
-import com.iohao.game.external.client.command.InputCallback;
+import com.iohao.game.external.client.command.CallbackDelegate;
 import com.iohao.game.external.client.command.InputCommand;
-import com.iohao.game.external.client.command.InputRequestData;
+import com.iohao.game.external.client.command.ListenCommand;
+import com.iohao.game.external.client.command.RequestDataDelegate;
 import com.iohao.game.external.client.kit.AssertKit;
-import com.iohao.game.external.client.kit.ClientUserConfigs;
 import com.iohao.game.external.client.kit.ClientKit;
+import com.iohao.game.external.client.kit.ClientUserConfigs;
 import com.iohao.game.external.client.kit.ScannerKit;
 import com.iohao.game.external.client.user.ClientUserChannel;
 import com.iohao.game.external.client.user.ClientUserInputCommands;
@@ -53,10 +54,17 @@ public class InputCommandCreate {
     int cmd = -1;
     /** true 相同路由的 InputCommand 只能存在一个 */
     boolean uniqueInputCommand = ClientUserConfigs.uniqueInputCommand;
+    /** 模块描述的前缀 */
+    String cmdName = "";
 
     ClientUserInputCommands clientUserInputCommands;
 
+    @Deprecated
     public CmdInfo getCmdInfo(int subCmd) {
+        return this.ofCmdInfo(subCmd);
+    }
+
+    public CmdInfo ofCmdInfo(int subCmd) {
         AssertKit.assertTrueThrow(cmd < 0, "cmd 不能小于 0");
         return CmdInfo.getCmdInfo(cmd, subCmd);
     }
@@ -78,7 +86,7 @@ public class InputCommandCreate {
         return ofInputCommand(subCmd, null);
     }
 
-    private InputCommand ofInputCommand(int subCmd, InputRequestData inputRequestData) {
+    private InputCommand ofInputCommand(int subCmd, RequestDataDelegate requestData) {
 
         CmdInfo cmdInfo = getCmdInfo(subCmd);
 
@@ -86,7 +94,8 @@ public class InputCommandCreate {
         extractedChecked(cmdInfo);
 
         return clientUserInputCommands.ofCommand(cmdInfo)
-                .setInputRequestData(inputRequestData);
+                .setCmdName(this.cmdName)
+                .setRequestData(requestData);
     }
 
     private void extractedChecked(CmdInfo cmdInfo) {
@@ -106,8 +115,8 @@ public class InputCommandCreate {
      * @return InputCommand
      */
     public InputCommand ofInputCommandLong(int subCmd) {
-        InputRequestData inputRequestData = nextParamLong("参数");
-        return ofInputCommand(subCmd, inputRequestData);
+        RequestDataDelegate requestData = nextParamLong("参数");
+        return ofInputCommand(subCmd, requestData);
     }
 
     /**
@@ -117,11 +126,11 @@ public class InputCommandCreate {
      * @return InputCommand
      */
     public InputCommand ofInputCommandUserId(int subCmd) {
-        InputRequestData inputRequestData = nextParamLong("对方的 userId");
-        return ofInputCommand(subCmd, inputRequestData);
+        RequestDataDelegate requestData = nextParamLong("对方的 userId");
+        return ofInputCommand(subCmd, requestData);
     }
 
-    public InputRequestData nextParamLong(String paramTips) {
+    public RequestDataDelegate nextParamLong(String paramTips) {
         return () -> {
             String info = "请输入{} | 参数类型 : {}";
             log.info(info, paramTips, long.class);
@@ -132,11 +141,11 @@ public class InputCommandCreate {
     }
 
     public InputCommand ofInputCommandInt(int subCmd) {
-        InputRequestData inputRequestData = nextParamInt("参数");
-        return ofInputCommand(subCmd, inputRequestData);
+        RequestDataDelegate requestData = nextParamInt("参数");
+        return ofInputCommand(subCmd, requestData);
     }
 
-    public InputRequestData nextParamInt(String paramTips) {
+    public RequestDataDelegate nextParamInt(String paramTips) {
         return () -> {
             String info = "请输入{} | 参数类型 : {}";
             log.info(info, paramTips, int.class);
@@ -147,11 +156,11 @@ public class InputCommandCreate {
     }
 
     public InputCommand ofInputCommandString(int subCmd) {
-        InputRequestData inputRequestData = nextParamString("参数");
-        return ofInputCommand(subCmd, inputRequestData);
+        RequestDataDelegate requestData = nextParamString("参数");
+        return ofInputCommand(subCmd, requestData);
     }
 
-    public InputRequestData nextParamString(String paramTips) {
+    public RequestDataDelegate nextParamString(String paramTips) {
         return () -> {
             String info = "请输入{} | 参数类型 : {}";
             log.info(info, paramTips, String.class);
@@ -171,11 +180,18 @@ public class InputCommandCreate {
      * @param subCmd        子路由
      * @param responseClass 响应后使用这个 class 来解析 data 数据
      * @param callback      结果回调（游戏服务器回传的结果）
-     * @param description   描述
+     * @param title         描述
      */
-    public void listenBroadcast(Class<?> responseClass, InputCallback callback, int subCmd, String description) {
-        CmdInfo cmdInfo = getCmdInfo(subCmd);
+    @Deprecated
+    public void listenBroadcast(Class<?> responseClass, CallbackDelegate callback, int subCmd, String title) {
+        CmdInfo cmdInfo = ofCmdInfo(subCmd);
         ClientUserChannel clientUserChannel = clientUserInputCommands.getClientUserChannel();
-        clientUserChannel.listenBroadcast(cmdInfo, responseClass, callback, description);
+
+        ListenCommand listenCommand = new ListenCommand(cmdInfo)
+                .setTitle(title)
+                .setResponseClass(responseClass)
+                .setCallback(callback);
+
+        clientUserChannel.addListen(listenCommand);
     }
 }

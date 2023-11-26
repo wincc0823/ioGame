@@ -21,9 +21,9 @@ package com.iohao.game.bolt.broker.server.kit;
 import com.iohao.game.bolt.broker.core.common.IoGameGlobalConfig;
 import com.iohao.game.bolt.broker.server.BrokerServer;
 import com.iohao.game.bolt.broker.server.balanced.BalancedManager;
-import com.iohao.game.common.kit.log.IoGameLoggerFactory;
+import com.iohao.game.common.consts.IoGameLogName;
 import lombok.experimental.UtilityClass;
-import org.slf4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.stream.Collectors;
 
@@ -32,9 +32,8 @@ import java.util.stream.Collectors;
  * @date 2022-05-12
  */
 @UtilityClass
+@Slf4j(topic = IoGameLogName.CommonStdout)
 public class BrokerPrintKit {
-    private static final Logger log = IoGameLoggerFactory.getLoggerCommonStdout();
-
     public void print(BrokerServer brokerServer) {
         if (!IoGameGlobalConfig.openLog) {
             return;
@@ -78,6 +77,5 @@ public class BrokerPrintKit {
                     ", tag:'" + tag + '\'' +
                     '}';
         }
-
     }
 }

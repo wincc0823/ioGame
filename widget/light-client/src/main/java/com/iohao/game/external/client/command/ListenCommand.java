@@ -20,9 +20,11 @@ package com.iohao.game.external.client.command;
 
 import com.iohao.game.action.skeleton.core.CmdInfo;
 import com.iohao.game.external.client.kit.ClientKit;
+import com.iohao.game.external.client.user.ClientUserChannel;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 import lombok.experimental.FieldDefaults;
 
 /**
@@ -33,20 +35,28 @@ import lombok.experimental.FieldDefaults;
  */
 @Getter
 @Setter
+@Accessors(chain = true)
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ListenBroadcastCommand {
+public class ListenCommand {
     final CmdInfo cmdInfo;
-    final String name;
-    String description = "... ...";
-    CommandCallback commandCallback;
+    String title;
+    CallbackDelegate callback;
+    ClientUserChannel clientUserChannel;
 
-    public ListenBroadcastCommand(CmdInfo cmdInfo) {
-        this.name = ClientKit.toInputName(cmdInfo);
+    @Deprecated
+    Class<?> responseClass;
+
+    public ListenCommand(CmdInfo cmdInfo) {
         this.cmdInfo = cmdInfo;
+    }
+
+    public void listen() {
+        clientUserChannel.addListen(this);
     }
 
     @Override
     public String toString() {
-        return name + "    :    " + description;
+        String inputName = ClientKit.toInputName(this.cmdInfo);
+        return inputName + "    :    " + title;
     }
 }

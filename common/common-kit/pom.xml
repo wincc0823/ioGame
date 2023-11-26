@@ -5,19 +5,17 @@
     <parent>
         <artifactId>ioGame</artifactId>
         <groupId>com.iohao.game</groupId>
-        <version>17.1.50</version>
+        <version>17.1.59</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>common-kit</artifactId>
 
-
     <dependencies>
-
         <dependency>
             <groupId>com.iohao.game</groupId>
-            <artifactId>light-log</artifactId>
+            <artifactId>common-micro-kit</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 

@@ -16,12 +16,18 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package com.iohao.game.common;
+package com.iohao.game.external.client.command;
 
 /**
  * @author 渔民小镇
- * @date 2023-05-01
+ * @date 2023-09-19
  */
-public interface CommonConst {
-    byte[] EMPTY_BYTES = new byte[0];
+@FunctionalInterface
+public interface RequestDataDelegate  {
+    /**
+     * 创建请求参数
+     *
+     * @return 请求参数
+     */
+    Object createRequestData();
 }

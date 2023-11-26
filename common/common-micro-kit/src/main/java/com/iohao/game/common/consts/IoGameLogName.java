@@ -16,15 +16,17 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package com.iohao.game.external.client.command;
-
-import com.iohao.game.external.core.message.ExternalMessage;
+package com.iohao.game.common.consts;
 
 /**
- * 请求命令
- *
  * @author 渔民小镇
- * @date 2023-07-08
+ * @date 2023-08-05
  */
-public record CommandRequest(int msgId, ExternalMessage externalMessage) {
+public interface IoGameLogName {
+    /** CommonStdout */
+    String CommonStdout = "CommonStdout";
+    String ExternalTopic = "ExternalTopic";
+    String ClusterTopic = "ClusterTopic";
+    String MsgTransferTopic = "MsgTransferTopic";
+    String ConnectionTopic = "ConnectionTopic";
 }

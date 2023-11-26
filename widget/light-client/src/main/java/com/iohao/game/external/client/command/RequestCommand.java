@@ -18,11 +18,14 @@
  */
 package com.iohao.game.external.client.command;
 
-import com.iohao.game.action.skeleton.core.CmdInfo;
 import com.iohao.game.action.skeleton.protocol.wrapper.IntValue;
 import com.iohao.game.action.skeleton.protocol.wrapper.LongValue;
 import com.iohao.game.external.client.user.ClientUserChannel;
-import com.iohao.game.external.client.user.ClientUserInputCommands;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
+
+import java.util.Objects;
 
 /**
  * 请求命令执行。用于请求服务器的命令，业务数据需要在调用 request 方法时传入。
@@ -30,13 +33,40 @@ import com.iohao.game.external.client.user.ClientUserInputCommands;
  * @author 渔民小镇
  * @date 2023-07-14
  */
-public record RequestCommand(InputCommand inputCommand, ClientUserInputCommands clientUserInputCommands) {
+@Getter
+@Setter
+@Accessors(chain = true)
+public class RequestCommand {
+    ClientUserChannel clientUserChannel;
+    int cmdMerge;
+    String title = "... ...";
+    /** 请求参数 */
+    RequestDataDelegate requestData;
+    /** 响应回调 */
+    CallbackDelegate callback;
+    /**
+     * 方法已经过期，无需代替品；目前是为了兼容老代码
+     */
+    @Deprecated
+    Class<?> responseClass;
 
+    /**
+     * 方法已经过期，无需代替品
+     *
+     * @param value v
+     */
+    @Deprecated
     public void request(long value) {
         LongValue longValue = LongValue.of(value);
         this.request(longValue);
     }
 
+    /**
+     * 方法已经过期，无需代替品
+     *
+     * @param value v
+     */
+    @Deprecated
     public void request(int value) {
         IntValue intValue = IntValue.of(value);
         this.request(intValue);
@@ -48,22 +78,38 @@ public record RequestCommand(InputCommand inputCommand, ClientUserInputCommands 
      *     当对应的模拟请求当配置了 inputRequestData 动态请求参数生成时，优先动态生成；
      *     否则使用配置时的 requestData 对象
      * </pre>
+     * <pre>
+     *     方法已经过期，请使用 {@code this.execute()}
+     * </pre>
      */
+    @Deprecated
     public void request() {
-        Object requestData = inputCommand.getRequestData();
-        this.request(requestData);
+
+        Object data = null;
+        if (Objects.nonNull(requestData)) {
+            data = requestData.createRequestData();
+        }
+
+        this.request(data);
     }
 
     /**
      * 向服务器发起请求
+     * <pre>
+     *     方法已经过期，请使用 {@code this.execute()}
+     * </pre>
      *
-     * @param requestData 请求业务参数
+     * @param data 请求业务参数
      */
-    public void request(Object requestData) {
-        CmdInfo cmdInfo = inputCommand.getCmdInfo();
-        Class<?> responseClass = inputCommand.getResponseClass();
-        InputCallback callback = inputCommand.getCallback();
-        ClientUserChannel clientUserChannel = clientUserInputCommands.getClientUserChannel();
-        clientUserChannel.request(cmdInfo, requestData, responseClass, callback);
+    @Deprecated
+    public void request(Object data) {
+        clientUserChannel.request(this, data);
+    }
+
+    /**
+     * 执行请求命令
+     */
+    public void execute() {
+        clientUserChannel.execute(this);
     }
 }

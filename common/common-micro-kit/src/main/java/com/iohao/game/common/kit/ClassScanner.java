@@ -18,9 +18,9 @@
  */
 package com.iohao.game.common.kit;
 
-import com.iohao.game.common.kit.log.IoGameLoggerFactory;
+import com.iohao.game.common.consts.IoGameLogName;
+import lombok.extern.slf4j.Slf4j;
 import org.jctools.maps.NonBlockingHashSet;
-import org.slf4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,9 +40,8 @@ import java.util.jar.JarFile;
  * @author 渔民小镇
  * @date 2021-12-12
  */
+@Slf4j(topic = IoGameLogName.CommonStdout)
 public class ClassScanner {
-    static final Logger log = IoGameLoggerFactory.getLoggerCommonStdout();
-
     /** 需要扫描的包名 */
     final String packagePath;
     /** 存放扫描过的 clazz */
@@ -101,38 +100,38 @@ public class ClassScanner {
 
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         this.classLoader = classLoader != null ? classLoader : ClassScanner.class.getClassLoader();
-
     }
 
     public List<URL> listResource() throws IOException {
         this.initClassLoad();
 
         Enumeration<URL> urlEnumeration = classLoader.getResources(packagePath);
-
-        Set<URL> urlSet = new HashSet<>();
-
+        Set<URL> set = new HashSet<>();
         while (urlEnumeration.hasMoreElements()) {
             URL url = urlEnumeration.nextElement();
-            urlSet.add(url);
+            set.add(url);
         }
 
-        return new ArrayList<>(urlSet);
+        return new ArrayList<>(set);
     }
 
     private void scanJar(URL url) throws IOException {
         URLConnection urlConn = url.openConnection();
         if (urlConn instanceof JarURLConnection jarUrlConn) {
             try (JarFile jarFile = jarUrlConn.getJarFile()) {
+
                 Enumeration<JarEntry> jarEntryEnumeration = jarFile.entries();
                 while (jarEntryEnumeration.hasMoreElements()) {
                     JarEntry jarEntry = jarEntryEnumeration.nextElement();
                     String jarEntryName = jarEntry.getName();
+
                     // 扫描 packagePath 下的类
                     if (jarEntryName.endsWith(".class") && jarEntryName.startsWith(packagePath)) {
                         jarEntryName = jarEntryName.substring(0, jarEntryName.length() - 6).replace('/', '.');
                         scanClazz(jarEntryName);
                     }
                 }
+
             }
         }
     }

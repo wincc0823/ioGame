@@ -18,18 +18,24 @@
  */
 package com.iohao.game.action.skeleton;
 
+import com.iohao.game.action.skeleton.toy.IoGameBanner;
+
 /**
  * @author 渔民小镇
  * @date 2022-12-23
  */
 public final class IoGameVersion {
     public static final String VERSION;
+    public static String a;
 
     static {
-        var internalVersion = "<version>17.1.50</version>";
+        String internalVersion = "<version>17.1.59</version>";
 
         VERSION = internalVersion
                 .replace("<version>", "")
-                .replace("</version>", "");
+                .replace("</version>", "")
+        ;
+
+        a = IoGameBanner.flag57;
     }
 }

@@ -28,7 +28,7 @@ import com.iohao.game.action.skeleton.protocol.HeadMetadata;
 import com.iohao.game.action.skeleton.protocol.RequestMessage;
 import com.iohao.game.action.skeleton.protocol.ResponseMessage;
 import com.iohao.game.bolt.broker.core.message.BroadcastMessage;
-import com.iohao.game.common.CommonConst;
+import com.iohao.game.common.consts.CommonConst;
 import com.iohao.game.common.kit.CollKit;
 import com.iohao.game.common.kit.HashKit;
 import com.iohao.game.external.core.config.ExternalGlobalConfig;
@@ -90,7 +90,8 @@ public class ExternalKit {
                 .setCmdMerge(cmdMerge)
                 .setRpcCommandType(RpcCommandType.REQUEST_ONEWAY)
                 .setSourceClientId(idHash)
-                .setMsgId(externalMessage.getMsgId());
+                .setMsgId(externalMessage.getMsgId())
+                .setCustomData(externalMessage.getCustomData());
 
         byte[] data = externalMessage.getData();
 
@@ -122,6 +123,8 @@ public class ExternalKit {
         externalMessage.setValidMsg(responseMessage.getValidatorMsg());
         // 消息标记号；由前端请求时设置，服务器响应时会携带上
         externalMessage.setMsgId(headMetadata.getMsgId());
+        // 开发者自定义数据
+        externalMessage.setCustomData(headMetadata.getCustomData());
 
         return externalMessage;
     }
@@ -215,7 +218,7 @@ public class ExternalKit {
     public void employError(ExternalMessage message, MsgExceptionInfo exceptionInfo) {
         message.setResponseStatus(exceptionInfo.getCode());
         message.setValidMsg(exceptionInfo.getMsg());
-        message.setData(CommonConst.EMPTY_BYTES);
+        message.setData(CommonConst.emptyBytes);
     }
 
     /**
